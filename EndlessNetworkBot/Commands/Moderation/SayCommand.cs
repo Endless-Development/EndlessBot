@@ -19,41 +19,85 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FR
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus;
+using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using System.Threading.Tasks;
 
 namespace EndlessNetworkBot.Commands.Moderation
 {
-    public class SayCommand : BaseCommandModule
+    public class KickCommand : BaseCommandModule
     {
-        [Command("Say")]
-        [Description("Ripete quello che è stato scritto dall'utente")]
-        [RequirePermissions(DSharpPlus.Permissions.ManageMessages)]
-        public async Task Comando(CommandContext command, [Description("Testo da ripetere")] params string[] Testo)
+        [Command("Kick")]
+        [Description("Espelle un utente dal server.")]
+        [RequirePermissions(DSharpPlus.Permissions.KickMembers)]
+        public async Task CommandAsync(CommandContext command, [Description("Utente da Kickare")] DiscordMember Utente, [Description("Motivo del Ban")] params string[] Motivo)
         {
-            if (Testo.Length == 0)
+            string motivoFinale = null;
+            if (Motivo.Length > 0)
+            {
+                foreach (string arg in Motivo)
+                {
+                    motivoFinale = motivoFinale + arg + " ";
+                }
+            }
+            try
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_GoodColor),
+                    Title = Utente.Mention + " è stato kickato dal server",
+                    Description = "Nessun motivo specificato."
+                };
+
+                if (motivoFinale != null) embed.Description = motivoFinale;
+
+                await Utente.BanAsync(0, motivoFinale);
+                await command.RespondAsync(embed);
+            }
+            catch (NotFoundException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
-                    Description = "Scrivi anche un testo da ripetere",
+                    Description = "Utente non trovato",
                 };
 
                 await command.RespondAsync(embed);
-                return;
             }
-            string messaggio = null;
-            foreach (string arg in Testo)
+            catch (BadRequestException)
             {
-                messaggio = messaggio + arg + " ";
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Description = "Impossibile kickare l'utente (BadRequestException)",
+                };
+
+                await command.RespondAsync(embed);
             }
-            await command.Channel.SendMessageAsync(messaggio);
-            await command.Message.DeleteAsync();
+            catch (ServerErrorException)
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Description = "Errore interno del server, impossibile kickare l'utente",
+                };
+
+                await command.RespondAsync(embed);
+            }
+            catch (UnauthorizedException)
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Description = "Non ho i permessi per kickare quell'utente",
+                };
+
+                await command.RespondAsync(embed);
+            }
         }
     }
 }
