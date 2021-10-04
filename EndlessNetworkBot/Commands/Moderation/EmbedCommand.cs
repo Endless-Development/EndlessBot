@@ -34,17 +34,17 @@ namespace EndlessNetworkBot.Commands.Moderation
         [Command("Embed")]
         [Description("Ripete in un embed quello che è stato scritto dall'utente")]
         [RequirePermissions(DSharpPlus.Permissions.ManageMessages)]
-        public async Task Comando(CommandContext command, [Description("Testo dell'embed")] params string[] Testo)
+        public async Task CommandAsync(CommandContext command, [Description("Testo dell'embed")] params string[] Testo)
         {
-            if (Testo.Length == 0)
+            if (Testo == null || Testo.Length == 0)
             {
                 DiscordEmbedBuilder errorEmbed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Scrivi anche un testo da ripetere",
                 };
 
-                await command.RespondAsync(errorEmbed);
+                await command.Channel.SendMessageAsync(errorEmbed);
                 return;
             }
             string messaggio = null;
@@ -55,11 +55,10 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
-                Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_GoodColor),
                 Description = messaggio,
             };
 
-            await command.RespondAsync(embed);
+            await command.Channel.SendMessageAsync(embed);
 
             await command.Message.DeleteAsync();
         }
