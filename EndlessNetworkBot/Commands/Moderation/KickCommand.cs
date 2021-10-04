@@ -48,55 +48,55 @@ namespace EndlessNetworkBot.Commands.Moderation
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_GoodColor),
-                    Title = Utente.Mention + " è stato kickato dal server",
+                    Title = Utente.Mention + " è stato kickato da " + command.Member.Mention,
                     Description = "Nessun motivo specificato."
                 };
 
                 if (motivoFinale != null) embed.Description = motivoFinale;
 
                 await Utente.BanAsync(0, motivoFinale);
-                await command.RespondAsync(embed);
+                await command.Message.DeleteAsync();
+                await command.Channel.SendMessageAsync(embed);
             }
             catch (NotFoundException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Utente non trovato",
                 };
 
-                await command.RespondAsync(embed);
+                await command.Channel.SendMessageAsync(embed);
             }
             catch (BadRequestException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Impossibile kickare l'utente (BadRequestException)",
                 };
 
-                await command.RespondAsync(embed);
+                await command.Channel.SendMessageAsync(embed);
             }
             catch (ServerErrorException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Errore interno del server, impossibile kickare l'utente",
                 };
 
-                await command.RespondAsync(embed);
+                await command.Channel.SendMessageAsync(embed);
             }
             catch (UnauthorizedException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Non ho i permessi per kickare quell'utente",
                 };
 
-                await command.RespondAsync(embed);
+                await command.Channel.SendMessageAsync(embed);
             }
         }
     }
