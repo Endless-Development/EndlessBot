@@ -2,19 +2,4 @@
 	"token": "you're kinda sus why are you trying to read my token?",
 	"prefix": "!",
 	"bot_status": "Endless Network",
-
-	"help_Color": "#FF0000",
-	"help_Title": "Endless Network - Help",
-	"help_Description": "Lista dei comandi del Server",
-	"help_WithCommand_command": "Comando: ",
-	"help_WithCommand_arguments": "Argomenti del Comando",
-	"help_WithCommand_stringBuilder": "Argomenti del Comando",
-	"help_WithCommand_noArguments": "Nessun argomento richiesto.",
-	"help_WithSubCommands_Description": "Usa !help <comando> per le informazioni specifiche di un comando.",
-	"help_WithSubCommands_Commands": "Comandi del Bot:",
-
-	"command_badColor": "#CD0000",
-	"command_goodColor": "#00FF00",
-	
-	"message_onReady": "Bot is ready",
 }
