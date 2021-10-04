@@ -13,5 +13,8 @@
 	"help_WithSubCommands_Description": "Usa !help <comando> per le informazioni specifiche di un comando.",
 	"help_WithSubCommands_Commands": "Comandi del Bot:",
 
+	"command_badColor": "#CD0000",
+	"command_goodColor": "#00FF00",
+	
 	"message_onReady": "Bot is ready",
 }
