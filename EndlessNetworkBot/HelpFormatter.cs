@@ -36,9 +36,9 @@ namespace EndlessNetworkBot
         // main embed
         public HelpFormatter(CommandContext ctx) : base(ctx)
         {
-            embed.Color = new DiscordColor(Bot.instance.GetConfig().Result.Help_Color);
-            embed.Title = Bot.instance.GetConfig().Result.Help_Title;
-            embed.Description = Bot.instance.GetConfig().Result.Help_Description;
+            embed.Color = new DiscordColor("#CD0000");
+            embed.Title = "Endless Network";
+            embed.Description = "Lista dei comandi del server.";
         }
         
         public override CommandHelpMessage Build()
@@ -52,7 +52,7 @@ namespace EndlessNetworkBot
             // embed
             embed.Title = "Comando \"" + command.Name + "\" - Help";
             embed.Description = command.Description;
-            stringBuilder.AppendLine(Bot.instance.GetConfig().Result.Help_WithCommand_command + command.Name + command.Description);
+            stringBuilder.AppendLine("Comando: " + command.Name + command.Description);
 
             // command arguments things
             string argomenti = "```";
@@ -81,11 +81,11 @@ namespace EndlessNetworkBot
 
             argomenti += "```";
 
-            if (argomenti == "``````") argomenti = Bot.instance.GetConfig().Result.Help_WithCommand_noArguments;
+            if (argomenti == "``````") argomenti = "Nessun argomento richiesto";
 
             // finally adds the arguments to the embed
-            embed.AddField(Bot.instance.GetConfig().Result.Help_WithCommand_arguments, argomenti);
-            stringBuilder.AppendLine(Bot.instance.GetConfig().Result.Help_WithCommand_stringBuilder + argomenti);
+            embed.AddField("Argomenti del Comando", argomenti);
+            stringBuilder.AppendLine("Argomenti del Comando" + argomenti);
 
             return this;
         }
@@ -94,7 +94,7 @@ namespace EndlessNetworkBot
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             // embed things
-            embed.Description = Bot.instance.GetConfig().Result.Help_WithSubCommands_Description;
+            embed.Description = "Usa !help <comando> per le informazioni specifiche di un comando.";
             string comandi = "```";
             
             // adds a comma between every command
@@ -126,7 +126,7 @@ namespace EndlessNetworkBot
             comandi = comandi + "```";
 
             // finally adds the command list to the embed
-            embed.AddField(Bot.instance.GetConfig().Result.Help_WithSubCommands_Commands, comandi);
+            embed.AddField("Comandi del Bot:", comandi);
 
             return this;
         }
