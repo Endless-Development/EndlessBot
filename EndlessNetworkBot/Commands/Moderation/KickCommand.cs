@@ -21,6 +21,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus;
+using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using System.Threading.Tasks;
