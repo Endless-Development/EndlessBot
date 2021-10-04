@@ -26,6 +26,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
+using EndlessNetworkBot.Commands.Moderation;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -78,7 +79,11 @@ namespace EndlessNetworkBot
         /// <returns>Task.CompletedTask</returns>
         private async Task<Task> RegisterCommandsAsync()
         {
-            // registering commands here
+            Commands.RegisterCommands<KickCommand>();
+            Commands.RegisterCommands<BanCommand>();
+            Commands.RegisterCommands<SayCommand>();
+            Commands.RegisterCommands<EmbedCommand>();
+            Commands.RegisterCommands<BlacklistCommand>();
 
             return Task.CompletedTask;
         }
