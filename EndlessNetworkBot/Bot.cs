@@ -49,13 +49,14 @@ namespace EndlessNetworkBot
             // loads main config and starts bot
             DiscordConfiguration discord = GetDiscordConfiguration();
             Client = new DiscordClient(discord);
-            Client.Ready += OnReady; // gets called when the bot is ready
+            Client.Ready += OnReadyAsync; // gets called when the bot is ready
             
             // loads commandsnext
             CommandsNextConfiguration commandsNext = GetCommandsNextConfiguration();
             Commands = Client.UseCommandsNext(commandsNext);
             Commands.SetHelpFormatter<HelpFormatter>();
-            await RegisterCommandsAsync().ConfigureAwait(false);
+            RegisterCommands();
+            Commands.CommandErrored += OnCommandErrored;
 
             // loads interactivity
             InteractivityConfiguration interactivity = GetInteractivityConfiguration();
@@ -76,16 +77,13 @@ namespace EndlessNetworkBot
         /// <summary>
         /// Register the bot commands
         /// </summary>
-        /// <returns>Task.CompletedTask</returns>
-        private async Task<Task> RegisterCommandsAsync()
+        private void RegisterCommands()
         {
             Commands.RegisterCommands<KickCommand>();
             Commands.RegisterCommands<BanCommand>();
             Commands.RegisterCommands<SayCommand>();
             Commands.RegisterCommands<EmbedCommand>();
             Commands.RegisterCommands<BlacklistCommand>();
-
-            return Task.CompletedTask;
         }
 
         #endregion
@@ -95,7 +93,7 @@ namespace EndlessNetworkBot
         /// <summary>
         /// Gets called when the bot is ready
         /// </summary>
-        private async Task OnReady(DiscordClient client, ReadyEventArgs ev)
+        private async Task OnReadyAsync(DiscordClient client, ReadyEventArgs ev)
         {
             // sets custom activity
             DiscordActivity activity = new DiscordActivity
@@ -107,7 +105,17 @@ namespace EndlessNetworkBot
             // updates bot activity
             await Client.UpdateStatusAsync(activity, UserStatus.DoNotDisturb);
 
-            Console.WriteLine(GetConfig().Result.Message_onReady);
+            Console.WriteLine("Bot is now ready.");
+        }
+
+        /// <summary>
+        /// Gets called when a command throws an error
+        /// </summary>
+        private async Task OnCommandErrored(CommandsNextExtension commands, CommandErrorEventArgs ev)
+        {
+            Console.WriteLine("ERROR IN COMMAND: " + ev.Command.Name);
+            Console.WriteLine("----------------------------------------------");
+            Console.WriteLine(ev.Exception);
         }
 
         #endregion
@@ -198,6 +206,7 @@ namespace EndlessNetworkBot
             JSONConfig json = JsonConvert.DeserializeObject<JSONConfig>(config);
 
             return json;
+
        }
 
         #endregion
