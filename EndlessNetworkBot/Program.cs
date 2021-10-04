@@ -46,7 +46,7 @@ namespace EndlessNetworkBot
             // starts the provided bot
             await bot.StartAsync();
 
-            HelpFormatter.bot = bot;
+            Bot.instance = bot;
 
             return Task.CompletedTask;
         }
