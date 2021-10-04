@@ -1,3 +1,24 @@
+// THIS CODE IS PART OF ENDLESS NETWORK BOT (made by Kheeto)
+// License:
+/* 
+ * Copyright (c) 2021 Kheeto
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+and associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial 
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,9 +35,34 @@ namespace EndlessNetworkBot.Commands.Moderation
     {
         [Command("Blacklist")]
         [Description("Comando per scrivere un ban in blacklist.")]
-        [RequirePermissions(DSharpPlus.Permissions.ManageMessages)]
-        public async Task Comando(CommandContext command)
+        [RequirePermissions(DSharpPlus.Permissions.BanMembers)]
+        public async Task CommandAsync(CommandContext command)
         {
+            #region Embeds
+
+            DiscordEmbedBuilder userNameEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Qual è il nome del player bannato?",
+                Description = "Rispondi in 60 secondi",
+                Color = new DiscordColor("#CD0000"),
+            };
+
+            DiscordEmbedBuilder durationEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Quando dura il ban?",
+                Description = "Rispondi in 60 secondi",
+                Color = new DiscordColor("#CD0000"),
+            };
+
+            DiscordEmbedBuilder reasonEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Perchè è stato bannato?",
+                Description = "Specifica un motivo entro 60 secondi",
+                Color = new DiscordColor("#CD0000"),
+            };
+
+            #endregion
+
             string reason;
             string duration;
 
@@ -29,7 +75,7 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             // ask for the name of the user who has been banned
             await command.Message.DeleteAsync();
-            DiscordMessage askForUserName = await command.Channel.SendMessageAsync("Qual è il nome del player è stato bannato?");
+            DiscordMessage askForUserName = await command.Channel.SendMessageAsync(userNameEmbed);
 
             var userName = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
 
@@ -54,8 +100,7 @@ namespace EndlessNetworkBot.Commands.Moderation
             #region Ban Reason
 
             // ask why the user has been banned
-            await command.Message.DeleteAsync();
-            DiscordMessage askForBanReason = await command.Channel.SendMessageAsync("Per quale motivo è stato bannato?");
+            DiscordMessage askForBanReason = await command.Channel.SendMessageAsync(reasonEmbed);
 
             var banReason = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
 
@@ -80,8 +125,7 @@ namespace EndlessNetworkBot.Commands.Moderation
             #region Ban Duration
 
             // ask for the name of the user who has been banned
-            await command.Message.DeleteAsync();
-            DiscordMessage askForBanDuration = await command.Channel.SendMessageAsync("Qual è il nome del player è stato bannato?");
+            DiscordMessage askForBanDuration = await command.Channel.SendMessageAsync(durationEmbed);
 
             var banDuration = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
 
