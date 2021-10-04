@@ -217,32 +217,6 @@ namespace EndlessNetworkBot
         [JsonProperty("token")] public string Token { get; private set; }
         [JsonProperty("prefix")] public string Prefix { get; private set; }
         [JsonProperty("bot_status")] public string Bot_Status { get; private set; }
-
-        #region Help Properties
-
-        [JsonProperty("help_Color")] public string Help_Color { get; private set; }
-        [JsonProperty("help_Title")] public string Help_Title { get; private set; }
-        [JsonProperty("help_Description")] public string Help_Description { get; private set; }
-        [JsonProperty("help_WithCommand_command")] public string Help_WithCommand_command { get; private set; }
-        [JsonProperty("help_WithCommand_arguments")] public string Help_WithCommand_arguments { get; private set; }
-        [JsonProperty("help_WithCommand_stringBuilder")] public string Help_WithCommand_stringBuilder { get; private set; }
-        [JsonProperty("help_WithCommand_noArguments")] public string Help_WithCommand_noArguments { get; private set; }
-        [JsonProperty("help_WithSubCommands_Description")] public string Help_WithSubCommands_Description { get; private set; }
-        [JsonProperty("help_WithSubCommands_Commands")] public string Help_WithSubCommands_Commands { get; private set; }
-
-        #endregion
-
-        #region Colors
-        [JsonProperty("command_badColor")] public string Command_BadColor { get; private set; }
-        [JsonProperty("command_goodColor")] public string Command_GoodColor { get; private set; }
-
-        #endregion
-
-        #region Messages
-
-        [JsonProperty("message_onReady")] public string Message_onReady { get; private set; }
-
-        #endregion
     }
 
 }
