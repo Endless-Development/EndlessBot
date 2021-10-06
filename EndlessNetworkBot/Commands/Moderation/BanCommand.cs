@@ -31,7 +31,7 @@ namespace EndlessNetworkBot.Commands.Moderation
     {
         [Command("Ban")]
         [Description("Banna un utente dal server.")]
-        [RequirePermissions(DSharpPlus.Permissions.BanMembers)]
+        [RequireRoles(RoleCheckMode.Any, "Staff")]
         public async Task CommandAsync(CommandContext command, [Description("Utente da Bannare")] DiscordMember Utente, [Description("Motivo del Ban")] params string[] Motivo)
         {
             string motivoFinale = null;
@@ -46,15 +46,23 @@ namespace EndlessNetworkBot.Commands.Moderation
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = Utente.Mention + " è stato bannato da " + command.Member.Mention,
+                    Title = Utente.Mention + " *è stato bannato da* " + command.Member.Mention,
                     Description = "Nessun motivo specificato."
                 };
 
-                if (motivoFinale != null) embed.Description = motivoFinale;
+                DiscordEmbedBuilder blacklist = new DiscordEmbedBuilder
+                {
+                    Title = "Ban su Discord",
+                    Description = Utente.Mention + " è stato bannato da " + command.Member.Mention,
+                    Color = new DiscordColor("#7289da")
+                };
+
+                if (motivoFinale != null) embed.Description = "Motivo: " + motivoFinale;
 
                 await Utente.BanAsync(0, motivoFinale);
                 await command.Message.DeleteAsync();
                 await command.Channel.SendMessageAsync(embed);
+                await command.Guild.GetChannel(885121887368257539).SendMessageAsync(blacklist);
             }
             catch (NotFoundException)
             {
