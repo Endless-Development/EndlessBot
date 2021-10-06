@@ -52,7 +52,7 @@ namespace EndlessNetworkBot.Commands.Moderation
             {
                 messaggio = messaggio + arg + " ";
             }
-
+            
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Description = messaggio,
