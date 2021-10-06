@@ -125,7 +125,7 @@ namespace EndlessNetworkBot
             }
 
             comandi += "Help.";
-            comandi = comandi + "```";
+            comandi += "```";
 
             // finally adds the command list to the embed
             embed.AddField("Comandi del Bot:", comandi);
