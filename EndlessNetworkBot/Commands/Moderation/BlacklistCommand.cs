@@ -35,14 +35,21 @@ namespace EndlessNetworkBot.Commands.Moderation
     {
         [Command("Blacklist")]
         [Description("Comando per scrivere un ban in blacklist.")]
-        [RequirePermissions(DSharpPlus.Permissions.BanMembers)]
+        [RequireRoles(RoleCheckMode.Any, "Staff")]
         public async Task CommandAsync(CommandContext command)
         {
             #region Embeds
 
             DiscordEmbedBuilder userNameEmbed = new DiscordEmbedBuilder
             {
-                Title = "Qual è il nome del player bannato?",
+                Title = "Qual è il nome del player bannato? (il nome in gioco)",
+                Description = "Rispondi in 60 secondi",
+                Color = new DiscordColor("#CD0000"),
+            };
+
+            DiscordEmbedBuilder stafferNameEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Qual è il nome dello staffer? (il nome in gioco)",
                 Description = "Rispondi in 60 secondi",
                 Color = new DiscordColor("#CD0000"),
             };
@@ -65,10 +72,12 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             string reason;
             string duration;
+            string user;
+            string moderator;
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
             {
-                
+                Title = "Ban su Minecraft",
             };
 
             #region User Name
@@ -77,12 +86,13 @@ namespace EndlessNetworkBot.Commands.Moderation
             await command.Message.DeleteAsync();
             DiscordMessage askForUserName = await command.Channel.SendMessageAsync(userNameEmbed);
 
-            var userName = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
+            var userName = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel
+            && msg.Channel.Guild.GetMemberAsync(msg.Author.Id).Result == command.Member).ConfigureAwait(false);
 
             if (!userName.TimedOut)
             {
                 // if moderator responded to the question the user name will be set as the embed title
-                embed.Title = userName.Result.Content;
+                user = userName.Result.Content;
                 await userName.Result.DeleteAsync();
                 await askForUserName.DeleteAsync();
             }
@@ -97,12 +107,39 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            #region Staffer Name
+
+            // ask for the name of the moderator who banned the user
+            DiscordMessage askForStafferName = await command.Channel.SendMessageAsync(stafferNameEmbed);
+
+            var stafferName = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel
+            && msg.Channel.Guild.GetMemberAsync(msg.Author.Id).Result == command.Member).ConfigureAwait(false);
+
+            if (!stafferName.TimedOut)
+            {
+                // if moderator responded to the question the user name will be set as the embed title
+                moderator = stafferName.Result.Content;
+                await stafferName.Result.DeleteAsync();
+                await askForStafferName.DeleteAsync();
+            }
+            else
+            {
+                // if moderator didn't respond the command will be cancelled
+                await command.Channel.SendMessageAsync(command.Member.Mention + ", Non hai scritto niente in 60 secondi. Comando Cancellato.");
+                await askForStafferName.DeleteAsync();
+
+                return;
+            }
+
+            #endregion
+
             #region Ban Reason
 
             // ask why the user has been banned
             DiscordMessage askForBanReason = await command.Channel.SendMessageAsync(reasonEmbed);
 
-            var banReason = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
+            var banReason = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel
+            && msg.Channel.Guild.GetMemberAsync(msg.Author.Id).Result == command.Member).ConfigureAwait(false);
 
             if (!banReason.TimedOut)
             {
@@ -127,7 +164,8 @@ namespace EndlessNetworkBot.Commands.Moderation
             // ask for the name of the user who has been banned
             DiscordMessage askForBanDuration = await command.Channel.SendMessageAsync(durationEmbed);
 
-            var banDuration = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel).ConfigureAwait(false);
+            var banDuration = await command.Client.GetInteractivity().WaitForMessageAsync(msg => msg.Channel == command.Channel
+            && msg.Channel.Guild.GetMemberAsync(msg.Author.Id).Result == command.Member).ConfigureAwait(false);
 
             if (!banDuration.TimedOut)
             {
@@ -147,10 +185,12 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            embed.AddField("Utente Bannato", user, true);
+            embed.AddField("Staffer", moderator, true);
             embed.AddField("Motivo del ban", reason, true);
             embed.AddField("Durata del ban", duration, true);
 
-            await command.Channel.SendMessageAsync(embed);
+            await command.Guild.GetChannel(885121887368257539).SendMessageAsync(embed);
         }
     }
 }
