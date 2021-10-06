@@ -100,6 +100,7 @@ namespace EndlessNetworkBot
             // adds a comma between every command
             foreach (Command command in subcommands)
             {
+                if (command.Name.ToLower() == "help") continue;
 
                 char[] commandChars = command.Name.ToCharArray();
                 string commandName = null;
@@ -123,6 +124,7 @@ namespace EndlessNetworkBot
 
             }
 
+            comandi += "Help.";
             comandi = comandi + "```";
 
             // finally adds the command list to the embed
