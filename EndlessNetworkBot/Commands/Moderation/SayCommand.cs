@@ -34,17 +34,18 @@ namespace EndlessNetworkBot.Commands.Moderation
         [Command("Say")]
         [Description("Ripete quello che è stato scritto dall'utente")]
         [RequirePermissions(DSharpPlus.Permissions.ManageMessages)]
-        public async Task Comando(CommandContext command, [Description("Testo da ripetere")] params string[] Testo)
+        public async Task CommandAsync(CommandContext command, [Description("Testo da ripetere")] params string[] Testo)
         {
-            if (Testo.Length == 0)
+            if (Testo == null || Testo.Length == 0)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Color = new DiscordColor(Bot.instance.GetConfig().Result.Command_BadColor),
+                    Color = new DiscordColor("#CD0000"),
                     Description = "Scrivi anche un testo da ripetere",
                 };
 
-                await command.RespondAsync(embed);
+                await command.Channel.SendMessageAsync(
+                    new DiscordMessageBuilder().WithEmbed(embed));
                 return;
             }
             string messaggio = null;
