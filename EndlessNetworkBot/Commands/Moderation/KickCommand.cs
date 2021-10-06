@@ -19,42 +19,92 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FR
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus;
+using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+using System.Threading.Tasks;
 
 namespace EndlessNetworkBot.Commands.Moderation
 {
-    public class SayCommand : BaseCommandModule
+    public class KickCommand : BaseCommandModule
     {
-        [Command("Say")]
-        [Description("Ripete quello che è stato scritto dall'utente")]
-        [RequirePermissions(DSharpPlus.Permissions.ManageMessages)]
-        public async Task CommandAsync(CommandContext command, [Description("Testo da ripetere")] params string[] Testo)
+        [Command("Kick")]
+        [Description("Espelle un utente dal server.")]
+        [RequireRoles(RoleCheckMode.Any, "Staff")]
+        public async Task CommandAsync(CommandContext command, [Description("Utente da Kickare")] DiscordMember Utente, [Description("Motivo del Ban")] params string[] Motivo)
         {
-            if (Testo == null || Testo.Length == 0)
+            string motivoFinale = null;
+            if (Motivo.Length > 0)
+            {
+                foreach (string arg in Motivo)
+                {
+                    motivoFinale = motivoFinale + arg + " ";
+                }
+            }
+            try
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Title = Utente.Mention + " è stato kickato da " + command.Member.Mention,
+                    Description = "Nessun motivo specificato."
+                };
+                DiscordEmbedBuilder blacklist = new DiscordEmbedBuilder
+                {
+                    Title = "Kick su Discord",
+                    Description = Utente.Mention + " è stato kickato da " + command.Member.Mention,
+                    Color = new DiscordColor("#7289da")
+                };
+
+                if (motivoFinale != null) embed.Description = "Motivo: " + motivoFinale;
+
+                await Utente.RemoveAsync(motivoFinale);
+                await command.Message.DeleteAsync();
+                await command.Channel.SendMessageAsync(embed);
+                await command.Guild.GetChannel(885121887368257539).SendMessageAsync(blacklist);
+            }
+            catch (NotFoundException)
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#CD0000"),
-                    Description = "Scrivi anche un testo da ripetere",
+                    Description = "Utente non trovato",
                 };
 
-                await command.Channel.SendMessageAsync(
-                    new DiscordMessageBuilder().WithEmbed(embed));
-                return;
+                await command.Channel.SendMessageAsync(embed);
             }
-            string messaggio = null;
-            foreach (string arg in Testo)
+            catch (BadRequestException)
             {
-                messaggio = messaggio + arg + " ";
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor("#CD0000"),
+                    Description = "Impossibile kickare l'utente (BadRequestException)",
+                };
+
+                await command.Channel.SendMessageAsync(embed);
             }
-            await command.Channel.SendMessageAsync(messaggio);
-            await command.Message.DeleteAsync();
+            catch (ServerErrorException)
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor("#CD0000"),
+                    Description = "Errore interno del server, impossibile kickare l'utente",
+                };
+
+                await command.Channel.SendMessageAsync(embed);
+            }
+            catch (UnauthorizedException)
+            {
+                DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor("#CD0000"),
+                    Description = "Non ho i permessi per kickare quell'utente",
+                };
+
+                await command.Channel.SendMessageAsync(embed);
+            }
         }
     }
 }
