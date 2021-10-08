@@ -36,7 +36,11 @@ namespace EndlessNetworkBot
 {
     public class Bot
     {
-        public static Bot instance;
+        public Bot(IServiceProvider sp)
+        {
+            StartAsync(sp);
+        }
+
         public DiscordClient Client { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
@@ -44,7 +48,7 @@ namespace EndlessNetworkBot
         /// <summary>
         /// Start and setup the bot.
         /// </summary>
-        public async Task StartAsync()
+        public async Task StartAsync(IServiceProvider sp)
         {
             // loads main config and starts bot
             DiscordConfiguration discord = GetDiscordConfiguration();
@@ -52,7 +56,7 @@ namespace EndlessNetworkBot
             Client.Ready += OnReadyAsync; // gets called when the bot is ready
             
             // loads commandsnext
-            CommandsNextConfiguration commandsNext = GetCommandsNextConfiguration();
+            CommandsNextConfiguration commandsNext = GetCommandsNextConfiguration(sp);
             Commands = Client.UseCommandsNext(commandsNext);
             Commands.SetHelpFormatter<HelpFormatter>();
             RegisterCommands();
@@ -142,7 +146,7 @@ namespace EndlessNetworkBot
         }
 
         /// <returns>Returns the CommandsNext Configuration</returns>
-        private CommandsNextConfiguration GetCommandsNextConfiguration()
+        private CommandsNextConfiguration GetCommandsNextConfiguration(IServiceProvider sp)
         {
             CommandsNextConfiguration config = new CommandsNextConfiguration
             {
@@ -151,6 +155,7 @@ namespace EndlessNetworkBot
                 EnableDefaultHelp = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
+                Services = sp
             };
 
             return config;
