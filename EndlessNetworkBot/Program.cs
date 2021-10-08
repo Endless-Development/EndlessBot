@@ -19,38 +19,27 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FR
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 
 namespace EndlessNetworkBot
 {
     class Program
     {
-        private static Bot bot;
-
         static void Main(string[] args)
         {
-            // starts the bot
-            bot = new Bot();
-            StartBotAsync(bot).GetAwaiter().GetResult();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        #region StartBotAsync task
-
-        /// <summary>
-        /// Asynchronous task that starts a bot
-        /// </summary>
-        /// <param name="bot">Which bot?</param>
-        /// <returns>Returns the completed task state</returns>
-        private static async Task<Task> StartBotAsync(Bot bot)
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            // starts the provided bot
-            await bot.StartAsync();
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
 
-            Bot.instance = bot;
-
-            return Task.CompletedTask;
         }
-
-        #endregion
     }
 }
