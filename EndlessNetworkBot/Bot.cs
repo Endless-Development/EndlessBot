@@ -137,7 +137,7 @@ namespace EndlessNetworkBot
         {
             DiscordMember member = await ev.Guild.GetMemberAsync(ev.User.Id);
             
-            if(ev.After != null && ev.After.Channel != null)
+            if(ev.After != null && ev.After.Channel != null) // if user joined a channel
             {
                 // if an user join a certain voice channel, it will make a custom one for him
                 if (ev.After.Channel.Id == 896424758722330704)
@@ -174,7 +174,9 @@ namespace EndlessNetworkBot
                     // adds it to the dictionary so we can find it later
                     customChannels.Add(custom.Id, member);
                 }
-            } else
+            }
+
+            if (ev.Before != null && ev.Before.Channel != null) // it user left a channel or moved to another one
             {
                 // if an user leaves a custom voice channel, and theres no one left, the bot will delete it
                 if (ev.Before.Channel.Users.Count() == 0 && customChannels.ContainsKey(ev.Before.Channel.Id))
