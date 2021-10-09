@@ -70,16 +70,19 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            // Customizable values
             string reason;
             string duration;
             string user;
             string moderator;
 
+            // default embed, it will be automatically updated
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
             {
                 Title = "Ban su Minecraft",
             };
 
+            // the name of the user who has been banned
             #region User Name
 
             // ask for the name of the user who has been banned
@@ -107,6 +110,7 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            // the name of the staffer/moderator who banned the user
             #region Staffer Name
 
             // ask for the name of the moderator who banned the user
@@ -133,6 +137,7 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            // customizable embed ban reason field/why was the player banned?
             #region Ban Reason
 
             // ask why the user has been banned
@@ -159,6 +164,7 @@ namespace EndlessNetworkBot.Commands.Moderation
 
             #endregion
 
+            // customizable embed ban duration field/for how long was the player banned?
             #region Ban Duration
 
             // ask for the name of the user who has been banned
