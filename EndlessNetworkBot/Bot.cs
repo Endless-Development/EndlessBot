@@ -23,19 +23,27 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
 using EndlessNetworkBot.Commands.Moderation;
+using EndlessNetworkBot.DB;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 namespace EndlessNetworkBot
 {
     public class Bot
     {
+        public Dictionary<ulong, DiscordMember> customChannels { get; private set; }
+
+        public ServerContext context { get; private set; }
+
         public Bot(IServiceProvider sp)
         {
             StartAsync(sp);
@@ -44,16 +52,21 @@ namespace EndlessNetworkBot
         public DiscordClient Client { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
+        public VoiceNextExtension Voice { get; private set; }
 
         /// <summary>
         /// Start and setup the bot.
         /// </summary>
         public async Task StartAsync(IServiceProvider sp)
         {
+            customChannels = new Dictionary<ulong, DiscordMember>();
+
             // loads main config and starts bot
             DiscordConfiguration discord = GetDiscordConfiguration();
             Client = new DiscordClient(discord);
             Client.Ready += OnReadyAsync; // gets called when the bot is ready
+            Client.VoiceStateUpdated += OnVoiceStateUpdatedAsync; // gets called when someone join/quit/moves in a channel
+
             
             // loads commandsnext
             CommandsNextConfiguration commandsNext = GetCommandsNextConfiguration(sp);
@@ -92,7 +105,7 @@ namespace EndlessNetworkBot
 
         #endregion
 
-        #region Events
+        #region Ready Event
 
         /// <summary>
         /// Gets called when the bot is ready
@@ -111,6 +124,73 @@ namespace EndlessNetworkBot
 
             Console.WriteLine("Bot is now ready.");
         }
+
+        #endregion
+
+        #region VoiceStateUpdate Event
+
+        /// <summary>
+        /// Gets called when an user joins/leaves/moves in a voice channel
+        /// Used to make custom voice channel
+        /// </summary>
+        private async Task OnVoiceStateUpdatedAsync(DiscordClient client, VoiceStateUpdateEventArgs ev)
+        {
+            DiscordMember member = await ev.Guild.GetMemberAsync(ev.User.Id);
+            
+            if(ev.After != null && ev.After.Channel != null)
+            {
+                // if an user join a certain voice channel, it will make a custom one for him
+                if (ev.After.Channel.Id == 896424758722330704)
+                {
+                    #region Permissions
+                    
+                    DiscordOverwriteBuilder memberPermissions = new DiscordOverwriteBuilder(member)
+                    {
+                        Allowed = Permissions.All,
+                    };
+                    DiscordOverwriteBuilder usersPermissions = new DiscordOverwriteBuilder(ev.Guild.GetRole(885121885371793419))
+                    {
+                        Allowed = Permissions.AccessChannels | Permissions.Speak | Permissions.Stream,
+                        Denied = Permissions.UseVoice,
+                    };
+                    DiscordOverwriteBuilder everyonePermissions = new DiscordOverwriteBuilder(ev.Guild.GetRole(885121885346623498))
+                    {
+                        Denied = Permissions.AccessChannels
+                    };
+                    List<DiscordOverwriteBuilder> permissions = new List<DiscordOverwriteBuilder>();
+                    permissions.Add(memberPermissions);
+                    permissions.Add(usersPermissions);
+                    permissions.Add(everyonePermissions);
+
+                    #endregion
+                    
+                    // creates a new voice channel
+                    DiscordChannel custom = await ev.Guild.CreateChannelAsync(member.DisplayName, ChannelType.Voice,
+                        ev.Guild.GetChannel(896404597843828756), " ", null, 1, permissions);
+                    
+                    // moves the user to that voice channel
+                    await custom.PlaceMemberAsync(member);
+
+                    // adds it to the dictionary so we can find it later
+                    customChannels.Add(custom.Id, member);
+                }
+            } else
+            {
+                // if an user leaves a custom voice channel, and theres no one left, the bot will delete it
+                if (ev.Before.Channel.Users.Count() == 0 && customChannels.ContainsKey(ev.Before.Channel.Id))
+                {
+                    // removes the channel from the dictionary
+                    customChannels.Remove(ev.Before.Channel.Id);
+
+                    // deletes the channel
+                    await ev.Before.Channel.DeleteAsync();
+                }
+            }
+        }
+
+        #endregion
+
+        #region CommandError Event
 
         /// <summary>
         /// Gets called when a command throws an error
@@ -140,6 +220,7 @@ namespace EndlessNetworkBot
                 GatewayCompressionLevel = GatewayCompressionLevel.Stream,
                 MessageCacheSize = 2048,
                 UseRelativeRatelimit = false,
+                Intents = DiscordIntents.GuildMessages | DiscordIntents.GuildVoiceStates | DiscordIntents.Guilds
             };
 
             return config;
@@ -155,7 +236,7 @@ namespace EndlessNetworkBot
                 EnableDefaultHelp = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
-                Services = sp
+                Services = sp,
             };
 
             return config;
