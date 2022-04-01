@@ -1,4 +1,4 @@
 # EndlessBot
-Advanced DSharpPlus Bot for my Discord Server
+Bot avanzato fatto con DSharpPlus per il nostro server discord
 
-Based on https://github.com/Kheeto/KheetoNetworkBot-DSharpPlus, it will have many new features like a custom voice channel manager (like the "VoiceMaster" bot)
+Basata sul mio bot https://github.com/Kheeto/KheetoNetworkBot-DSharpPlus, ma con molte nuove aggiunte
